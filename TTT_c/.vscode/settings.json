@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        ".fantomasignore": "ignore",
+        "cstdio": "c",
+        "game.h": "c",
+        "stdio.h": "c",
+        "string.h": "c",
+        "minimax.h": "c",
+        "stdlib.h": "c",
+        "defs.h": "c",
+        "time.h": "c"
+    }
+}
