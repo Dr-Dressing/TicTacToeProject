@@ -10,6 +10,36 @@ void resetBoard(boardState *board)
     board->illegal = 0;
 }
 
+void changeBoard(boardState *board, int index)
+{
+    if (board->square[index] || index > 8 || index < 0) { board->illegal = 1; return; }
+    if (board->turn) { board->square[index] = 1; } else { board->square[index] = 2; }
+    if (board->wincondition) { board->illegal = 1; return; } 
+    board->illegal = 0;
+    board->turn ^= 1;
+    board->filledSquares++;
+
+    // Win condition check.
+    for (uint8_t i = 0; i < 3; i++) {
+
+        // provided the offsets return non-zero, there has been reached a win-condition.
+        uint8_t offsetVertical = board->square[i] & board->square[i+3] & board->square[i+6];
+        uint8_t diagonal1 = board->square[0] & board->square[4] & board->square[8]; 
+        uint8_t diagonal2 = board->square[2] & board->square[4] & board->square[6]; 
+        uint8_t row = i*3;
+        uint8_t offsetHorizontal = board->square[row] & board->square[row + 1] & board->square[row + 2];
+        
+        if (offsetVertical || offsetHorizontal || diagonal1 || diagonal2) {
+            board->wincondition ^= 1;
+            break;
+        } else if (board->filledSquares == 9) {
+            board->wincondition = 2; 
+            // No break here, as further searches could find a win condition.
+        }
+    }
+    return;
+}
+
 void showBoard(int square[9])
 {
     for (int i = 0; i < 9; i++) {
@@ -34,6 +64,7 @@ int gameLoop(boardState *board)
         showBoard(board->square);
         printf("\nInsert X/O on the index of your square (0-8).\n");
         scanf("%d", &squareIndex); // Highly unsafe, I suppose. But it's fine for this case. 
+        
         changeBoard(board, squareIndex);
         if (board->wincondition) { break; }
         else { initAI(board); }

@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        ".fantomasignore": "ignore",
+        "minimax.h": "c",
+        "stdio.h": "c",
+        "game.h": "c",
+        "testunit.h": "c",
+        "assert.h": "c"
+    }
+}
