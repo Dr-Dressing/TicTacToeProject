@@ -5,20 +5,19 @@
 #include <stdlib.h>
 #include <time.h>
 
+
 typedef struct boardState
 {
-    int square[9];
+    uint8_t square[9];
     uint8_t wincondition; // Non-zero suggests loss or draw, with AI playing (X).
     uint8_t turn;
     uint8_t filledSquares;
-    int illegal;
+    uint8_t illegal;
 } boardState;
 
-#define true 1
-#define false 0
 
 
-void changeBoard(boardState *board, int index);
+void changeBoard(boardState *board, uint8_t index);
 void initAI(boardState *board);
-int minimax(boardState *board, int depth, int *squareCheck, uint8_t maximizingPlayer);
-int eval(boardState *board, int *squareCheck);
+int eval(boardState *board, uint8_t *squareCheck, uint8_t maximizingPlayer);
+int minimax(boardState *board, uint8_t depth, uint8_t *squareCheck, uint8_t maximizingPlayer);

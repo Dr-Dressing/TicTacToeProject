@@ -1,6 +1,6 @@
 
 # I'm not doing anything fancy here.
-# Compile and run. No optimizations. (It's already fast as-is)
+# Compile and run. ~~No optimizations.~~ (It's already fast as-is)
 
 compile:
 	gcc -Wall *.c *.h -o test

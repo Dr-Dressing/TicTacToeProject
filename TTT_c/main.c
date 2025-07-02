@@ -4,7 +4,7 @@
 
 int main()
 {
-    testAll();
-    //init();
+    //testAll();
+    init();
     return 0;
 }

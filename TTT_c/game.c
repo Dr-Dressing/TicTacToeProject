@@ -1,5 +1,8 @@
 #include "game.h"
 
+
+// resetBoard is a trivial function that resets the board state.
+// @param board: The address of the board to reset.
 void resetBoard(boardState *board)
 {
     //memset(board, 0, sizeof(board));
@@ -10,7 +13,10 @@ void resetBoard(boardState *board)
     board->illegal = 0;
 }
 
-void changeBoard(boardState *board, int index)
+// changeBoard is is a trivial function that changes the board state.
+// @param board: The address of the board to change.
+// @param index: The index of the square to change.
+void changeBoard(boardState *board, uint8_t index)
 {
     if (board->square[index] || index > 8 || index < 0) { board->illegal = 1; return; }
     if (board->turn) { board->square[index] = 1; } else { board->square[index] = 2; }
@@ -40,9 +46,20 @@ void changeBoard(boardState *board, int index)
     return;
 }
 
-void showBoard(int square[9])
+// showBoard prints the board to the console in the format
+// [ - ] for empty squares, [ X ] for X's, and [ O ] for O's.
+// @param square: The board to print.
+void showBoard(uint8_t square[9])
 {
-    for (int i = 0; i < 9; i++) {
+    // Testing grounds.
+    #ifdef TEST
+    printf("\n\n");
+    #else
+    printf("\e[1;1H\e[2J"); // Clear console.
+    #endif
+
+
+    for (uint8_t i = 0; i < 9; i++) {
         if (i % 3 == 0) printf("\n"); // Ideally to show a 3x3 row of "squares".
         if (square[i] == 0) printf(" [ - ] ");
         if (square[i] == 1) printf(" [ X ] ");
@@ -50,21 +67,23 @@ void showBoard(int square[9])
     }
 }
 
+// gameLoop is exactly that.
+// @param board: The address of the main board to play on. 
+// (Subsequent boards are copies of this board, so the AI can play on a copy of the board.)
+// @return: Returns 0 -- It could be used for error handling, but for this project, 
+// it isn't exactly necessary.
 int gameLoop(boardState *board)
 {
     while (!board->wincondition)
     {
-        int squareIndex; // Written square index. This will be used in the placement logic.
-        
-        printf("\e[1;1H\e[2J"); // Clear console.
+        int squareIndex; // Written square index. This is the input.
 
-        if (board->illegal) { printf("ILLEGAL INPUT - MOVE RETRACTED"); board->illegal = 0; }
-        
         printf("\nTurn-val : %d\n", board->turn);
         showBoard(board->square);
         printf("\nInsert X/O on the index of your square (0-8).\n");
         scanf("%d", &squareIndex); // Highly unsafe, I suppose. But it's fine for this case. 
-        
+        // In this case, I sacrifice safety for simplicity.
+
         changeBoard(board, squareIndex);
         if (board->wincondition) { break; }
         else { initAI(board); }
@@ -79,6 +98,7 @@ int gameLoop(boardState *board)
     return 0;
 }
 
+// Empty board upon initialization.
 int init()
 {
     struct boardState board;
