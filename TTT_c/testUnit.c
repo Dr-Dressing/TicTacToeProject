@@ -4,6 +4,9 @@
 // I'm not testing showBoard, as it prints to the console.
 // - And it's trivial.
 
+
+// HELPER FUNCTIONS
+
 // Simple one-way hashing algorithm for comparing boards.
 int minihash(boardState board){
     int hash = 0;
@@ -16,6 +19,40 @@ int minihash(boardState board){
     }
     return hash;
 }
+
+// This is a perft inspired by https://www.chessprogramming.org/Perft
+// This makes sure that the correct number of legal moves are generated
+int perft(int depth, boardState *board){
+    
+    boardState tempBoard = *board;
+    moveList list;
+
+    memcpy(&tempBoard, board, sizeof(*board));
+    int legals = 0;
+    
+    legalMoves(&tempBoard, &list);
+    legals += list.size; // Number of leafs in this
+    
+    if (depth > 1){
+        legals = 0;
+        for (int i = 0; i < list.size; i++){
+            // For each legal move, we make a copy of the board and change it.
+            memcpy(&tempBoard, board, sizeof(*board));
+            changeBoard(&tempBoard, list.moves[i]);
+            
+            
+            if (tempBoard.illegal) continue;
+            legals += perft(depth - 1, &tempBoard);
+        }
+    }
+
+    //printf("Legals %d\n", legals);
+    return legals;
+}
+
+
+// ACTUAL TESTS
+
 
 // resetBoard (simple) test.
 void test1(){
@@ -140,15 +177,75 @@ void test3()
 
     assert(board.wincondition == 1);
 
+    // Draw condition.
+    // O X O
+    // X X O
+    // O O X
+    resetBoard(&board);
+    changeBoard(&board, 0);
+    changeBoard(&board, 1);
+    changeBoard(&board, 2);
+    changeBoard(&board, 3);
+    changeBoard(&board, 5);
+    changeBoard(&board, 4);
+    changeBoard(&board, 6);
+    changeBoard(&board, 8);
+    changeBoard(&board, 7);
+
+    assert(board.wincondition == 2); // Draw condition.
+    assert(board.filledSquares == 9); // All squares filled.
+
     printf("Test 3 complete\n");
 }
 
-// Simple minimax testing. Immediate win condition, and loss prevention.
-void test4()
-{
-    // Setting up a board with an immediate win condition.
+// perft testing the legal move generator.
+void test4(){
+
+    // These perfts were verified with this engine
+    // https://github.com/toanth/motors
+    // Thank you to toanth for suggesting it.
+
     boardState board;
-    resetBoard(&board); // Reset is also a kind of init.
+    
+    resetBoard(&board);
+    
+    int legalMoves = perft(1, &board);
+    assert(legalMoves == 9);
+    
+    legalMoves = perft(2, &board);
+    assert(legalMoves == 72);
+
+    legalMoves = perft(3, &board);
+    assert(legalMoves == 504);
+
+    legalMoves = perft(4, &board);
+    assert(legalMoves == 3024);
+
+    legalMoves = perft(5, &board);
+    assert(legalMoves == 15120);
+
+    legalMoves = perft(6, &board);
+    assert(legalMoves == 54720);
+
+    legalMoves = perft(7, &board);
+    assert(legalMoves == 148176);  
+
+    legalMoves = perft(8, &board);
+    assert(legalMoves == 200448);
+
+    legalMoves = perft(9, &board);
+    assert(legalMoves == 127872);
+
+
+
+    printf("Test 4 complete\n");
+}
+
+// Testing win in one move.
+void test5(){
+    boardState board;
+    resetBoard(&board);
+
     changeBoard(&board, 0);
     changeBoard(&board, 1);
     changeBoard(&board, 3);
@@ -156,35 +253,47 @@ void test4()
     
     // O X -
     // O X -
-    // - - - 
-    // with O to move.
+    // - - -
 
-    initAI(&board); // AI should play square 6.
-    showBoard(board.square);
+    initAI(&board);
+    // showBoard(board.square);
+    assert(board.wincondition == 1);
 
-    assert(board.square[6] == 2); // AI plays O.
-    assert(board.illegal == 0); // No illegal moves allowed.
-
-
-    // Immediate loss prevention.
     resetBoard(&board);
+
     changeBoard(&board, 0);
     changeBoard(&board, 1);
     changeBoard(&board, 3);
+    changeBoard(&board, 4);
+    changeBoard(&board, 2);
 
-    initAI(&board); // Should play square 6, to prevent an immediate loss.
+    initAI(&board); // AI should play square 6.
+    // showBoard(board.square);
+    assert(board.wincondition == 1);
 
-    // O X -
-    // O - -
-    // - - - 
-    // with X to move.
+    printf("Test 5 complete\n");
+}
 
-    showBoard(board.square);
-    printf("\n");
-    assert(board.square[6] == 1);
-    assert(board.illegal == 0);
+// Simulated games between AI and AI.
+void test6()
+{
+    // Setting up a board with an immediate win condition.
+    boardState board;
 
-    printf("Test 4 complete\n");
+    // It's a little slow, so 10 games should suffice.
+    for (int i = 0; i < 10; i++){
+        resetBoard(&board);
+        while (!board.wincondition)
+        {
+            initAI(&board);
+            usleep(50); // Otherwise I get a race condition. :(
+        }
+        // showBoard(board.square);
+        // printf("Game %d\n", i + 1);
+        assert(board.wincondition == DRAW);
+    }
+
+    printf("Test 6 complete\n");
 
 }
 
@@ -194,6 +303,8 @@ void testAll()
     test2();
     test3();
     test4();
+    test5();
+    test6();
     printf("All tests complete\n");
     return;
 }

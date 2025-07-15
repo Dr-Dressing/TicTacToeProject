@@ -1,15 +1,11 @@
 {
+    "C_Cpp.default.compilerPath": "C:/Program Files/mingw/bin/gcc.exe",
     "files.associations": {
         ".fantomasignore": "ignore",
-        "cstdio": "c",
-        "game.h": "c",
-        "stdio.h": "c",
-        "string.h": "c",
-        "minimax.h": "c",
-        "stdlib.h": "c",
-        "defs.h": "c",
-        "time.h": "c",
         "testunit.h": "c",
-        "assert.h": "c"
+        "game.h": "c",
+        "negamax.h": "c",
+        "assert.h": "c",
+        "stdio.h": "c"
     }
 }

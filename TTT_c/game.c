@@ -1,5 +1,44 @@
 #include "game.h"
 
+// Fills the passed list struct with legal moves in the passed board. 
+// I'm passing the list to avoid returning a local variable.
+// Provided there are no legal moves, there must be a wincondition met. With no exceptions.
+// @param board: The address of the board to check for legal moves.
+// @param list: The address of the moveList to fill with legal moves.
+// @returns The filled list with legal moves.
+moveList legalMoves(boardState *board, moveList *list)
+{
+    moveList emptyList = {
+        .moves = { 0 },
+        .size = 0
+    };
+
+    // Right now, I don't know how to init a zeroed moves array.
+    // So this would have to do.
+    
+    memcpy(list, &emptyList, sizeof(emptyList));
+    
+    // No legal moves.
+    if (board->illegal) { return emptyList; }
+
+    for (int i = 0; i < 9; i++)
+    {
+        boardState testLegalBoard;
+        memcpy(&testLegalBoard, board, sizeof(*board));
+
+        changeBoard(&testLegalBoard, i);
+        if (testLegalBoard.illegal) { continue; }
+
+        list->moves[list->size] = i; // Add the index to the list.
+        list->size++; // i and size aren't necessarily the same.
+    }
+    
+    if (list->size == 0) { return emptyList; } // No legal moves.
+
+    
+    return *list;
+}
+
 
 // resetBoard is a trivial function that resets the board state.
 // @param board: The address of the board to reset.
@@ -36,10 +75,10 @@ void changeBoard(boardState *board, uint8_t index)
         uint8_t offsetHorizontal = board->square[row] & board->square[row + 1] & board->square[row + 2];
         
         if (offsetVertical || offsetHorizontal || diagonal1 || diagonal2) {
-            board->wincondition ^= 1;
-            break;
+            board->wincondition = 1;
+            return;
         } else if (board->filledSquares == 9) {
-            board->wincondition = 2; 
+            board->wincondition = 2;
             // No break here, as further searches could find a win condition.
         }
     }
@@ -51,7 +90,7 @@ void changeBoard(boardState *board, uint8_t index)
 // @param square: The board to print.
 void showBoard(uint8_t square[9])
 {
-    // Testing grounds.
+    // #define TEST
     #ifdef TEST
     printf("\n\n");
     #else

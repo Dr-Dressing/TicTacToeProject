@@ -1,4 +1,4 @@
-#include "minimax.h"
+#include "negamax.h"
 
 
 //int randomMoveMaker(boardState *board);

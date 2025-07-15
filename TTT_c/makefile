@@ -7,3 +7,8 @@ compile:
 run:
 	gcc -Wall *.c *.h -o test
 	./test
+
+# Testing optimizations.
+
+optimized:
+	gcc -Wall -O2 *.c *.h -o engine
